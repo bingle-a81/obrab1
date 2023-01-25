@@ -28,7 +28,6 @@ def main():
     # book = xlwt.Workbook(encoding="utf-8")
     # sheet1 = book.add_sheet("Python Sheet 1")
     a = ''
-    zzz=''
     with open('783D3294O02.BDD', 'r', encoding="cp1251") as f:
         for line in f:
             if all(['BDPD|' in line, 'ПАО СБЕРБАНК//' in line]):
