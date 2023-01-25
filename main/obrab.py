@@ -14,12 +14,15 @@ import xlwt
 #
 def main():
     def sber(a: str) -> str:
+        t=''
         lst = a.split('|')
         if '_' in a:
             i=a.index('_')
             k=a[i+1:i+10]
+        t=lst[2]
+        d=t.split('.')[0]
         z=f"insert into lspayment values (gen_id ('lspayment',1)," \
-          f"277,{k} ,5,9,24,0,{lst[2]},276,51317,{lst[6]},0.00,'knv_tanja' ,today(),0,1,0,null,null,null)"
+          f"277,{k} ,5,9,24,0,{lst[2]},276,5{d}17,{lst[6]},0.00,'knv_tanja' ,today(),0,1,0,null,null,null)"
         return z
 
     # book = xlwt.Workbook(encoding="utf-8")
