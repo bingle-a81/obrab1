@@ -10,6 +10,7 @@ import os
 # logger = logging.getLogger('app_logger.' + __name__)
 
 def sber(line: str,period:str) -> str:
+    face_number='NONE'
     lst = line.split('|')
     if '_' in line:
         i = line.index('_')
@@ -53,7 +54,7 @@ def main():
     i=0
     with open(file_data, 'r', encoding="cp1251") as f:
         for line in f:
-            if all(['BDPD|' in line, 'ПАО СБЕРБАНК//' in line]):
+            if all(['BDPD|' in line, 'ПАО СБЕРБАНК//' in line,'_' in line]):
                 a = sber(line,period)
                 with open('.//mydir//1.sql', 'a+') as fi:
                     fi.write(a+'\n')
