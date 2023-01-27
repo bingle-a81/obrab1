@@ -18,10 +18,21 @@ def sber(line: str,period:str) -> str:
     payment_date = lst[2]
     pachka = payment_date.split('.')[0]
     payment=lst[6]
-
-    return f"insert into lspayment values (gen_id ('lspayment',1)," \
-        f"{period},{face_number} ,5,9,24,0,'{payment_date}',276,5{pachka}17,{payment}," \
+    period_1=int(period)-1
+    # print(len(lst))
+    kbk=lst[32]
+    kbk1=kbk[17:20]
+    if kbk1=='120':
+        result=f"insert into lspayment values (gen_id ('lspayment',1)," \
+        f"{period},{face_number} ,5,9,24,0,'{payment_date}',{period_1},5{pachka}17,{payment}," \
         f"0.00,'knv_tanja' ,today(),0,1,0,null,null,null);"
+    elif kbk1=='140':
+        result=f"insert into lspayment values (gen_id ('lspayment',1)," \
+        f"{period},{face_number} ,5,9,24,0,'{payment_date}',{period_1},5{pachka}17,0.00," \
+        f"{payment},'knv_tanja' ,today(),0,1,0,null,null,null);"
+    else:
+        result='NONE'
+    return result
 
 class Working_with_file:
     def __init__(self,path:str):
@@ -50,7 +61,7 @@ def main():
     file_data=work.search_for_a_file_in_a_folder()
     a = ''
     book = xlwt.Workbook(encoding="utf-8")
-    sheet1 = book.add_sheet("Python Sheet 1")
+    sheet1 = book.add_sheet("Таблица 1")
     i=0
     with open(file_data, 'r', encoding="cp1251") as f:
         for line in f:
