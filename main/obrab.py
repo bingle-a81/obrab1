@@ -33,6 +33,9 @@ class Sort_text:
             if 'ПАО СБЕРБАНК//' in self.line:
                 list_parameters_sql=self.parse_sber()
                 self.list_sql_sber.append(list_parameters_sql)
+                print(self.list_sql_sber)
+                # self.create_script_sql(self.list_sql_sber)
+
             else:
                 print('1')
         else:
@@ -80,46 +83,6 @@ class Sort_text:
         # return f"insert into lspayment values (gen_id ('lspayment',1)," \
         # f"f,{lst[0]} ,{lst[1]},9,24,0,'fff',{period_1},{lst[3]},{lst[4]}," \
         # f"{lst[5]},'knv_tanja' ,today(),0,1,0,null,null,null);"
-
-
-# -----------------------
-def seach_in_lsuin(uin:str):
-    with open('.//mydir//lsuin.dat', 'r', encoding="cp1251") as f:
-        for line in f:
-            if uin in line:
-                lst=line.split(',')
-                result=lst[2]
-        return result
-
-
-def sber(line: str,period:str) -> str:
-    face_number='NONE'
-    lst = line.split('|')
-    if '_' in line:
-        i = line.index('_')
-        face_number = line[i + 1:i + 10]
-    else:
-        uin=lst[28]
-        face_number=seach_in_lsuin(uin)
-    payment_date = lst[2]
-    pachka = payment_date.split('.')[0]
-    payment=lst[6]
-    period_1=int(period)-1
-    # print(len(lst))
-    kbk=lst[32]
-    kbk1=kbk[17:20]
-    if kbk1=='120':
-        result=f"insert into lspayment values (gen_id ('lspayment',1)," \
-        f"{period},{face_number} ,5,9,24,0,'{payment_date}',{period_1},5{pachka}17,{payment}," \
-        f"0.00,'knv_tanja' ,today(),0,1,0,null,null,null);"
-    elif kbk1=='140':
-        result=f"insert into lspayment values (gen_id ('lspayment',1)," \
-        f"{period},{face_number} ,5,9,24,0,'{payment_date}',{period_1},5{pachka}17,0.00," \
-        f"{payment},'knv_tanja' ,today(),0,1,0,null,null,null);"
-    else:
-        result=f'PROVER KBK(120-140): UIN-{face_number}'
-    return result
-
 
 
 
