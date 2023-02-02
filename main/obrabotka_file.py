@@ -41,7 +41,7 @@ class Parsing_file:
         if any(x in line for x in ['BDPD|','BDPL|']):
             self.counter_shared+=1
             self.uin = self.list_line[28]
-            if len(self.uin) == 25:
+            if len(self.uin) == 25 and self.uin!='0411530702012000000695906':
                 self.counter_script+=1
                 if 'ПАО СБЕРБАНК//' in line:
                     self.list_param_sql=self.parse_sber()
