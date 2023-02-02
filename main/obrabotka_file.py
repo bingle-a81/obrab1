@@ -128,10 +128,10 @@ def main():
         for line in f:
             pf.parse_line(line)
         pf.book.save(os.path.join(w.path,w.list_file[2]))
-        with open(os.path.join(w.path, w.list_file[0]), 'a+') as fi:
-            fi.write(pf.text_sber)
-        with open(os.path.join(w.path, w.list_file[1]), 'a+') as fi:
-            fi.write(pf.text_other_bank)
+        with open(os.path.join(w.path, w.list_file[0]), 'a+') as fi1:
+            fi1.write(pf.text_sber)
+        with open(os.path.join(w.path, w.list_file[1]), 'a+') as fi2:
+            fi2.write(pf.text_other_bank)
 
 
 
