@@ -67,7 +67,7 @@ class Parsing_file:
         source_bank = '10'
         face_number = self.seach_in_lsuin()
         payment_date = self.list_line[2]
-        pachka='1025'
+        pachka='10'+str(payment_date.split('.')[0])
         payment_ = self.list_line[6]
         kbk = self.list_line[32]
         kbk1 = kbk[17:20]
@@ -118,7 +118,7 @@ class Parsing_file:
 def main():
     period = input('Введите какой период закачивать:')
     dirs='.\mydir'
-    list_files=['sber.sql','other.sql','other_excel.xls']
+    list_files=['script.sql','other_excel.xls']
 
     w=Working_with_file(dirs,*list_files)
     w.delete_a_file()
@@ -127,13 +127,10 @@ def main():
     with open(file_data, 'r', encoding="cp1251") as f:
         for line in f:
             pf.parse_line(line)
-        pf.book.save(os.path.join(w.path,w.list_file[2]))
+        pf.book.save(os.path.join(w.path,w.list_file[1]))
         with open(os.path.join(w.path, w.list_file[0]), 'a+') as fi1:
             fi1.write(pf.text_sber)
-        with open(os.path.join(w.path, w.list_file[1]), 'a+') as fi2:
-            fi2.write(pf.text_other_bank)
-
-
+            fi1.write(pf.text_other_bank)
 
 
 # -----------------------------------------------------------------------
