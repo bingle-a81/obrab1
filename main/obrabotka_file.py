@@ -32,12 +32,17 @@ class Parsing_file:
         self.ecxel_id=-1
         self.text_sber=''
         self.text_other_bank=''
+        self.counter_shared=0
+        self.counter_script = 0
+        self.counter_excel=0
 
     def parse_line(self,line:str):
         self.list_line = line.split('|')
         if any(x in line for x in ['BDPD|','BDPL|']):
+            self.counter_shared+=1
             self.uin = self.list_line[28]
             if len(self.uin) == 25:
+                self.counter_script+=1
                 if 'ПАО СБЕРБАНК//' in line:
                     self.list_param_sql=self.parse_sber()
                     if self.list_param_sql[4]!='NONE':
@@ -53,6 +58,7 @@ class Parsing_file:
                     else:
                         self.make_excel_file()
             else:
+                self.counter_excel += 1
                 self.make_excel_file()
 
 
@@ -95,12 +101,16 @@ class Parsing_file:
             return 'NONE', 'NONE'
 
     def seach_in_lsuin(self):
-        with open('.//mydir//lsuin.dat', 'r', encoding="cp1251") as f:
-            for line in f:
-                if self.uin in line:
-                    lst = line.split(',')
-                    result = lst[2]
-            return result
+        if os.path.isfile('.//mydir//lsuin.dat'):
+            with open('.//mydir//lsuin.dat', 'r', encoding="cp1251") as f:
+                for line in f:
+                    if self.uin in line:
+                        lst = line.split(',')
+                        result = lst[2]
+                return result
+        else:
+            logger.info('нет файла lsuin.dat в папке')
+            raise FileExistsError('нет файла в папке')
 
 
     def make_excel_file(self):
@@ -117,12 +127,16 @@ class Parsing_file:
 #
 def main():
     period = input('Введите какой период закачивать:')
+    logger.info('Ввели период :'+period)
     dirs='.\mydir'
     list_files=['script.sql','other_excel.xls']
 
     w=Working_with_file(dirs,*list_files)
     w.delete_a_file()
     file_data = w.search_for_a_file_in_a_folder(".BDD")
+    if file_data==None:
+        logger.info('нет файла .BDD в папке')
+        raise FileExistsError('нет файла  в папке')
     pf=Parsing_file(period)
     with open(file_data, 'r', encoding="cp1251") as f:
         for line in f:
@@ -131,7 +145,11 @@ def main():
         with open(os.path.join(w.path, w.list_file[0]), 'a+') as fi1:
             fi1.write(pf.text_sber)
             fi1.write(pf.text_other_bank)
-
+    logger.info('записей обработано:'+str(pf.counter_shared))
+    logger.info('записей в скрипте:' + str(pf.counter_script))
+    logger.info('записей в excel:' + str(pf.counter_excel))
+    if pf.counter_shared-(pf.counter_script+pf.counter_excel)!=0:
+        logger.info('Количество записей не совпадает!')
 
 # -----------------------------------------------------------------------
 if __name__ == '__main__':
