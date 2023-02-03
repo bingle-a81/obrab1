@@ -45,14 +45,16 @@ class Parsing_file:
                 self.counter_script+=1
                 if 'ПАО СБЕРБАНК//' in line:
                     self.list_param_sql=self.parse_sber()
-                    if self.list_param_sql[4]!='NONE':
+                    if self.list_param_sql[4]!='NONE' and self.list_param_sql[0]!='NONE':
                         a=self.create_script_sql()
                         self.text_sber+=f'{a} \n'
                     else:
                         self.make_excel_file()
+                elif '"ПРОМСВЯЗЬБАНК"' in line:
+                    self.make_excel_file()
                 else:
                     self.list_param_sql = self.parse_other_bank()
-                    if self.list_param_sql[4] != 'NONE':
+                    if self.list_param_sql[4]!='NONE' and self.list_param_sql[0]!='NONE':
                         a = self.create_script_sql()
                         self.text_other_bank += f'{a} \n'
                     else:
@@ -83,6 +85,7 @@ class Parsing_file:
     def parse_sber(self):
         source_bank='5'
         face_number=self.seach_in_lsuin()
+
         payment_date = self.list_line[2]
         pachka ='5'+str(payment_date.split('.')[0])+'17'
         payment_ = self.list_line[6]
@@ -101,6 +104,7 @@ class Parsing_file:
             return 'NONE', 'NONE'
 
     def seach_in_lsuin(self):
+        result="NONE"
         if os.path.isfile('.//mydir//lsuin.dat'):
             with open('.//mydir//lsuin.dat', 'r', encoding="cp1251") as f:
                 for line in f:
