@@ -32,6 +32,7 @@ class Parsing_file:
         self.ecxel_id=-1
         self.text_sber=''
         self.text_other_bank=''
+        self.text_tinkoff_bank = ''
         self.counter_shared=0
         self.counter_script = 0
         self.counter_excel=0
@@ -42,26 +43,40 @@ class Parsing_file:
             self.counter_shared+=1
             self.uin = self.list_line[28]
             if len(self.uin) == 25 and self.uin!='0411530702012000000695906':
-                self.counter_script+=1
+
                 if 'ПАО СБЕРБАНК//' in line:
                     self.list_param_sql=self.parse_sber()
                     if self.list_param_sql[4]!='NONE' and self.list_param_sql[0]!='NONE':
+                        self.counter_script += 1
                         a=self.create_script_sql()
                         self.text_sber+=f'{a} \n'
                     else:
+                        self.counter_excel += 1
                         self.make_excel_file()
                 elif '"ПРОМСВЯЗЬБАНК"' in line:
                     self.make_excel_file()
                 else:
                     self.list_param_sql = self.parse_other_bank()
                     if self.list_param_sql[4]!='NONE' and self.list_param_sql[0]!='NONE':
+                        self.counter_script += 1
                         a = self.create_script_sql()
                         self.text_other_bank += f'{a} \n'
                     else:
+                        self.counter_excel += 1
                         self.make_excel_file()
             else:
-                self.counter_excel += 1
-                self.make_excel_file()
+                if '"ТИНЬКОФФ БАНК"' in line and 'ЛС' in line :
+                    self.list_param_sql = self.parse_tinkoff()
+                    if self.list_param_sql[4]!='NONE' and self.list_param_sql[0]!='NONE':
+                        self.counter_script += 1
+                        a = self.create_script_sql()
+                        self.text_tinkoff_bank += f'{a} \n'
+                    else:
+                        self.counter_excel += 1
+                        self.make_excel_file()
+                else:
+                    self.counter_excel += 1
+                    self.make_excel_file()
 
 
     def create_script_sql(self):
@@ -94,6 +109,18 @@ class Parsing_file:
         payment,payment_0=self.check_kbk(kbk1,payment_)
         return [face_number,source_bank,payment_date,pachka,payment,payment_0]
 
+    def parse_tinkoff(self):
+        source_bank = '10'
+        a=';'.join([x for x in self.list_line if 'ЛС' in x])
+        b=' '.join([x for x in a.split(';') if 'ЛС' in x])
+        face_number = b.split()[1]
+        payment_date = self.list_line[2]
+        pachka='10'+str(payment_date.split('.')[0])
+        payment_ = self.list_line[6]
+        kbk = self.list_line[32]
+        kbk1 = kbk[17:20]
+        payment,payment_0=self.check_kbk(kbk1,payment_)
+        return [face_number, source_bank, payment_date, pachka, payment, payment_0]
 
     def check_kbk(self,kbk1,payment_):
         if kbk1=='120':
@@ -149,6 +176,7 @@ def main():
         with open(os.path.join(w.path, w.list_file[0]), 'a+') as fi1:
             fi1.write(pf.text_sber)
             fi1.write(pf.text_other_bank)
+            fi1.write(pf.text_tinkoff_bank)
     logger.info('записей обработано:'+str(pf.counter_shared))
     logger.info('записей в скрипте:' + str(pf.counter_script))
     logger.info('записей в excel:' + str(pf.counter_excel))
