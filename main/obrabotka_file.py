@@ -43,7 +43,6 @@ class Parsing_file:
             self.counter_shared+=1
             self.uin = self.list_line[28]
             if len(self.uin) == 25 and self.uin!='0411530702012000000695906':
-
                 if 'ПАО СБЕРБАНК//' in line:
                     self.list_param_sql=self.parse_sber()
                     if self.list_param_sql[4]!='NONE' and self.list_param_sql[0]!='NONE':
@@ -57,6 +56,7 @@ class Parsing_file:
                     self.make_excel_file()
                 else:
                     self.list_param_sql = self.parse_other_bank()
+                    # print(self.list_param_sql)
                     if self.list_param_sql[4]!='NONE' and self.list_param_sql[0]!='NONE':
                         self.counter_script += 1
                         a = self.create_script_sql()
