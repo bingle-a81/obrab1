@@ -33,8 +33,12 @@ class Parsing_file:
         self.text_sber=''
         self.text_other_bank=''
         self.text_tinkoff_bank = ''
+        self.text_promsviaz=''
         self.counter_shared=0
-        self.counter_script = 0
+        self.counter_script_sber = 0
+        self.counter_script_tinkoff = 0
+        self.counter_script_promsviaz = 0
+        self.counter_script_other_bank = 0
         self.counter_excel=0
 
     def parse_line(self,line:str):
@@ -46,19 +50,26 @@ class Parsing_file:
                 if 'ПАО СБЕРБАНК//' in line:
                     self.list_param_sql=self.parse_sber()
                     if self.list_param_sql[4]!='NONE' and self.list_param_sql[0]!='NONE':
-                        self.counter_script += 1
+                        self.counter_script_sber += 1
                         a=self.create_script_sql()
                         self.text_sber+=f'{a} \n'
                     else:
                         self.counter_excel += 1
                         self.make_excel_file()
                 elif '"ПРОМСВЯЗЬБАНК"' in line:
-                    self.make_excel_file()
+                    self.list_param_sql=self.parse_promsviaz()
+                    if self.list_param_sql[4]!='NONE' and self.list_param_sql[0]!='NONE':
+                        self.counter_script_promsviaz += 1
+                        a=self.create_script_sql()
+                        self.text_promsviaz+=f'{a} \n'
+                    else:
+                        self.counter_excel += 1
+                        self.make_excel_file()
                 else:
                     self.list_param_sql = self.parse_other_bank()
                     # print(self.list_param_sql)
                     if self.list_param_sql[4]!='NONE' and self.list_param_sql[0]!='NONE':
-                        self.counter_script += 1
+                        self.counter_script_other_bank += 1
                         a = self.create_script_sql()
                         self.text_other_bank += f'{a} \n'
                     else:
@@ -68,7 +79,7 @@ class Parsing_file:
                 if '"ТИНЬКОФФ БАНК"' in line and 'ЛС' in line :
                     self.list_param_sql = self.parse_tinkoff()
                     if self.list_param_sql[4]!='NONE' and self.list_param_sql[0]!='NONE':
-                        self.counter_script += 1
+                        self.counter_script_tinkoff += 1
                         a = self.create_script_sql()
                         self.text_tinkoff_bank += f'{a} \n'
                     else:
@@ -100,7 +111,6 @@ class Parsing_file:
     def parse_sber(self):
         source_bank='5'
         face_number=self.seach_in_lsuin()
-
         payment_date = self.list_line[2]
         pachka ='5'+str(payment_date.split('.')[0])+'17'
         payment_ = self.list_line[6]
@@ -108,6 +118,18 @@ class Parsing_file:
         kbk1 = kbk[17:20]
         payment,payment_0=self.check_kbk(kbk1,payment_)
         return [face_number,source_bank,payment_date,pachka,payment,payment_0]
+
+    def parse_promsviaz(self):
+        source_bank='73'
+        face_number=self.seach_in_lsuin()
+        payment_date = self.list_line[2]
+        pachka ='73'+str(payment_date.split('.')[0])
+        payment_ = self.list_line[6]
+        kbk = self.list_line[32]
+        kbk1 = kbk[17:20]
+        payment,payment_0=self.check_kbk(kbk1,payment_)
+        return [face_number,source_bank,payment_date,pachka,payment,payment_0]
+
 
     def parse_tinkoff(self):
         source_bank = '10'
@@ -177,10 +199,16 @@ def main():
             fi1.write(pf.text_sber)
             fi1.write(pf.text_other_bank)
             fi1.write(pf.text_tinkoff_bank)
+            fi1.write(pf.text_promsviaz)
     logger.info('записей обработано:'+str(pf.counter_shared))
-    logger.info('записей в скрипте:' + str(pf.counter_script))
+    logger.info('записей в скрипте сбер:' + str(pf.counter_script_sber))
+    logger.info('записей в скрипте промсвязь:' + str(pf.counter_script_promsviaz))
+    logger.info('записей в скрипте тинькоф:' + str(pf.counter_script_tinkoff))
+    logger.info('записей в скрипте другие:' + str(pf.counter_script_other_bank))
+    script=pf.counter_script_sber+pf.counter_script_promsviaz+pf.counter_script_tinkoff+pf.counter_script_other_bank
+    logger.info('Итого в скрипте:' + str(script))
     logger.info('записей в excel:' + str(pf.counter_excel))
-    if pf.counter_shared-(pf.counter_script+pf.counter_excel)!=0:
+    if pf.counter_shared-(script+pf.counter_excel)!=0:
         logger.info('Количество записей не совпадает!')
 
 # -----------------------------------------------------------------------
